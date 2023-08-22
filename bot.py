@@ -1,77 +1,107 @@
+from decouple import config
+
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, ContextTypes
-
-import settings
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, filters, ContextTypes
 
 
-async def create_keyboard():
+TELEGRAM_TOKEN = config('TELEGRAM_TOKEN')
+
+
+def get_main_menu_keyboard() -> InlineKeyboardMarkup:
     keyboard = [
         [
-            InlineKeyboardButton("Показать последнее селфи", callback_data="selfie"),
-            InlineKeyboardButton("Показать пост про увлечении", callback_data="hobby"),
-            InlineKeyboardButton("Показать ссылку на исходники", callback_data="source"),
+            InlineKeyboardButton('Фото из старшей школы', callback_data='school'),
+            InlineKeyboardButton('Последнее селфи', callback_data='selfie'),
+            InlineKeyboardButton('Пост про увлечения', callback_data='hobby'),
+            InlineKeyboardButton('Разницу между SQL и NoSQL', callback_data='difference'),
+            InlineKeyboardButton('Что ещё умею', callback_data='more'),
         ]
     ]
-
     return InlineKeyboardMarkup(keyboard)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    reply_markup = await create_keyboard()
-    await update.message.reply_text(f'Привет, {update.effective_user.first_name}!', reply_markup=reply_markup)
 
-
-
-async def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+def handle_button_click(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
-    reply_markup = await create_keyboard()
-
-    if query.data == "selfie":
+    if query.data == 'selfie':
         photo_url = 'https://cdn2.thecatapi.com/images/3dl.jpg'
-        await query.message.reply_photo(photo_url, reply_markup=reply_markup)
-    elif query.data == "hobby":
+        return query.message.reply_photo(photo_url)
+    if query.data == 'school':
+        photo_url = 'https://cdn2.thecatapi.com/images/3dl.jpg'
+        return query.message.reply_photo(photo_url)
+    elif query.data == 'hobby':
         hobby_post = 'Здесь можно добавить информацию о вашем увлечении, пост или ссылку на ваш сайт.'
-        await query.message.reply_text(hobby_post, reply_markup=reply_markup)
-    elif query.data == "source":
-        post_url = 'https://github.com/EvgVol/test_mentor'
-        await query.message.reply_text(f'Код бота на GitHub: {post_url}', reply_markup=reply_markup)
+        return query.message.reply_text(hobby_post)
+    elif query.data == 'difference':
+        difference_info = 'Здесь нужно добавить информацию про разницу между SQL и NoSQL'
+        return query.message.reply_text(difference_info)
+    elif query.data == 'more':
+        more_info = 'Я умею отвечать на вопросы:\n что ты умеешь?\n кто ты?\n кто твой владелец?\n что такое gpt?\n'
+        return query.message.reply_text(more_info)
 
-    await query.answer()
-
-
-async def what_can_you_do(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    capabilities = """Я могу:
-    - Показать последнее селфи
-    - Показать пост про увлечение
-    - Показать ссылку на исходники бота"""
-    await update.message.reply_text(capabilities)
+    return query.answer()
 
 
-async def who_are_you(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    about_bot = "Я - Телеграм-бот. Моя задача состоит в том, чтобы предоставлять информацию пользователю и взаимодействовать с ним."
-    await update.message.reply_text(about_bot)
+def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    reply_markup = get_main_menu_keyboard()
+    message = f'Привет, {update.effective_user.first_name}! Что вам показать?'
+    return update.message.reply_text(message, reply_markup=reply_markup)
 
 
-async def who_is_your_owner(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    owner_info = "Мой владелец: Иван Иванов.\nКонтакты:\n- Телеграм: @Ivan_Ivanov\n- Email: ivan.ivanov@example.com"
-    await update.message.reply_text(owner_info)
+def what_can_you_do(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    reply_markup = get_main_menu_keyboard()
+    message_text = '''Привет! Вот список того, что я могу предложить:
+    - Показать последнее селфи моего хозяина;
+    - Показать фото из старшей школы;
+    - Показать пост про его увлечения;
+    - Вывести ссылку на мой код;
+    - Моороткогу ко объяснить разницу между SQL и NoSQL;
+    - Расскажу (по секрету) тайную историю первой любви моего хозяина;
+    - Могу ответить на несколько вопросов;
+    - Дам ссылочку на резюме моего хозяина.
+    '''
+    return update.message.reply_text(message_text, reply_markup=reply_markup)  
 
 
-async def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     text = update.message.text.lower()
-    if "что ты умеешь?" in text:
-        await what_can_you_do(update, context)
-    elif "кто ты?" in text:
-        await who_are_you(update, context)
-    elif "кто твой владелец?" in text:
-        await who_is_your_owner(update, context)
+    if 'что ты умеешь?' in text:
+        return what_can_you_do(update, context)
+    elif 'кто ты?' in text:
+        about_bot = 'Я - Телеграм-бот. Моя задача состоит в том, чтобы предоставлять информацию пользователю и взаимодействовать с ним.'
+        return update.message.reply_text(about_bot)
+    elif 'что такое gpt?' in text:
+        about_gpt = 'Тут должна информация про то, что такое чат GPT'
+        return update.message.reply_text(about_gpt)
+    elif 'кто твой владелец?' in text:
+        owner_info = 'Мой владелец: Евгений Волочек.\nКонтакты:\n- Телеграм: @ESVolochek\n- Email: volohek93@yandex.ru'
+        return update.message.reply_text(owner_info)
     else:
-        await update.message.reply_text("Извините, я не понимаю ваш вопрос. Попробуйте задать другой вопрос.")
+        return update.message.reply_text('Извините, я не понимаю ваш вопрос. Попробуйте задать другой вопрос.')
 
 
-app = ApplicationBuilder().token(settings.TELEGRAM_TOKEN).build()
+def story(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    secret_history = 'Тут должна быть тайная история первой любви'
+    return update.message.reply_text(secret_history)
 
-app.add_handler(CommandHandler("start", start))
-app.add_handler(CallbackQueryHandler(handle_button_click))
-app.add_handler(MessageHandler(Filters.text & ~Filters.command, text_handler))
 
-app.run_polling()
+def resume(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    resume_url = 'https://hh.ru/resume_converter/Волочек%20Евгений%20Сергеевич.pdf?hash=ca1334ccff0b2b8e230039ed1f584467354567&type=pdf&hhtmSource=resume&hhtmFrom=resume_list'
+    return update.message.reply_text(f'Ссылка на резюме: {resume_url}')
+
+
+def code(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    code_url = 'https://github.com/EvgVol/test_mentor'
+    return update.message.reply_text(f'Ссылка на GitHub: {code_url}')
+
+
+bot = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+
+bot.add_handler(CommandHandler("start", start))
+bot.add_handler(CommandHandler("story", story))
+bot.add_handler(CommandHandler("resume", resume))
+bot.add_handler(CommandHandler("code", code))
+bot.add_handler(CommandHandler("menu", what_can_you_do))
+bot.add_handler(CallbackQueryHandler(handle_button_click))
+bot.add_handler(MessageHandler(filters.TEXT & ~ filters.COMMAND, text_handler))
+
+bot.run_polling()
