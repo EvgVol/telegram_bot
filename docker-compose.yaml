@@ -1,0 +1,22 @@
+version: '3.3'
+
+services:
+
+  db:
+    image: postgres:14.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+  app:
+    image: evol93/testmentorimage:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    env_file:
+      - ./.env
+
+volumes:
+  postgres_data:
