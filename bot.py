@@ -8,7 +8,8 @@ from telegram.ext import (ApplicationBuilder, CommandHandler,
 from gtts import gTTS
 from tempfile import NamedTemporaryFile
 
-from . import database, settings
+from database import get_message_text_from_db
+from settings import TELEGRAM_TOKEN
 
 
 def get_main_menu_keyboard() -> InlineKeyboardMarkup:
@@ -38,7 +39,7 @@ async def handle_button_click(update: Update,
         'selfie': query.message.reply_photo,
         'school': query.message.reply_photo,
     }
-    message = database.get_message_text_from_db(query.data)
+    message = get_message_text_from_db(query.data)
 
     if query.data in data_to_reply_function:
         reply_function = data_to_reply_function[query.data]
@@ -51,17 +52,16 @@ async def handle_button_click(update: Update,
 
 def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     reply_markup = get_main_menu_keyboard()
-    message = database.get_message_text_from_db(
+    message = get_message_text_from_db(
         'start'
     ).format(name=update.effective_user.first_name)
     return update.message.reply_text(message, reply_markup=reply_markup)
 
 
-def what_can_you_do(update: Update,
-                    context: ContextTypes.DEFAULT_TYPE) -> None:
+def what_can_you_do(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     reply_markup = get_main_menu_keyboard()
-    message = database.get_message_text_from_db('what_can_you_do')
-    return update.message.reply_text(message, reply_markup=reply_markup)
+    message = get_message_text_from_db('what_can_you_do')
+    return update.message.reply_text(message, reply_markup=reply_markup)  
 
 
 async def send_voice_message(update: Update,
@@ -92,7 +92,7 @@ def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if callable(action):
         return action(update, context)
     else:
-        message = database.get_message_text_from_db(action)
+        message = get_message_text_from_db(action)
 
         if action == 'about_gpt':
             return send_voice_message(update, context, message)
@@ -105,7 +105,7 @@ def code(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     return update.message.reply_text(f"Исходный код на GitHub: {url}")
 
 
-bot = ApplicationBuilder().token(settings.TELEGRAM_TOKEN).build()
+bot = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
 bot.add_handler(CommandHandler("start", start))
 bot.add_handler(CommandHandler("code", code))
