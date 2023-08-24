@@ -1,6 +1,6 @@
 import psycopg2
 
-import settings
+from . import settings
 
 
 def get_message_text_from_db(message_type: str) -> str:
