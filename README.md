@@ -1,5 +1,5 @@
 # Telegram bot
-[![Main workflow](https://github.com/EvgVol/test_mentor/actions/workflows/main.yml/badge.svg)](https://github.com/EvgVol/test_mentor/actions/workflows/main.yml)
+[![Main workflow](https://github.com/EvgVol/telegram_bot/actions/workflows/main.yml/badge.svg)](https://github.com/EvgVol/test_mentor/actions/workflows/main.yml)
 [![Python Version](https://img.shields.io/badge/python-v3.11-blue)](https://www.python.org/downloads/release/python-3110/) [![Docker](https://img.shields.io/badge/-Docker-464646?style=flat-square&logo=docker)](https://www.docker.com/) [![Yandex.Cloud](https://img.shields.io/badge/-Yandex.Cloud-464646?style=flat-square&logo=Yandex.Cloud)](https://cloud.yandex.ru/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14.0-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
 
