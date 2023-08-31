@@ -101,7 +101,7 @@ def text_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 def code(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    url = 'https://github.com/EvgVol/test_mentor'
+    url = 'https://github.com/EvgVol/telegram_bot'
     return update.message.reply_text(f"Исходный код на GitHub: {url}")
 
 
